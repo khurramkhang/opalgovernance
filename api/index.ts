@@ -88,8 +88,8 @@ tool({
 })(getContents);
 
 tool({
-  name: "content_governance_by_type",
-  description: "Retun the contents for governance where content type match the query",
+  name: "content_governance_by_content_type",
+  description: "Retun the contents for governance where content type or type match the query",
   parameters: [
     {
       name: "query",
@@ -100,10 +100,6 @@ tool({
     }
   ],
 })(getContentsByType);
-
-app.use("/tools/content_governance_by_type", (req, res, next) => {
-    next();
-  });
 
 /*
 // For local development
