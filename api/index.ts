@@ -5,7 +5,7 @@ import {
 } from "@optimizely-opal/opal-tools-sdk";
 import express from "express";
 import dotenv from "dotenv";
-import { estimateRunTimeDays } from "./calculate-runtime";
+import axios from "axios";
 
 dotenv.config();
 
@@ -20,66 +20,55 @@ app.get("/", (req, res) => {
   res.send("Opal tool server is running. Visit /discovery for tool discovery.");
 });
 
-type CalculateRuntimeParams = {
-  BCR: number;
-  MDE: number;
-  sigLevel: number;
-  numVariations: number;
-  dailyVisitors: number;
+type SearchParams = {
+  query: string;
 };
 
-async function calculateRuntime(
-  params: CalculateRuntimeParams
-): Promise<{ days: number | null }> {
-  const { BCR, MDE, sigLevel, numVariations, dailyVisitors } = params;
-  const days = estimateRunTimeDays(
-    BCR,
-    MDE,
-    sigLevel,
-    numVariations,
-    dailyVisitors
+async function getContents(
+  params: SearchParams
+): Promise<{ articles: Article[] | null }> {
+  const { query } = params;
+  const articles = await searchArticles(query);
+  return { articles };
+}
+
+type Article = {
+  title: string;
+  description: string;
+  url: string;
+  urlToImage: string;
+  publishedAt: string;
+  content: string;
+};
+
+async function searchArticles(query: string): Promise<Article[]> {
+  const url = "https://www.jsonkeeper.com/b/RWBFU";
+  const response = await axios.get(url);
+  const articles: Article[] = response.data.articles || [];
+
+  const lowerQuery = query.toLowerCase();
+  return articles.filter(article =>
+    Object.values(article).some(
+      value =>
+        typeof value === "string" &&
+        value.toLowerCase().includes(lowerQuery)
+    )
   );
-  return { days };
 }
 
 tool({
-  name: "calculate_experiment_runtime",
-  description: "Calculates the estimated time to run an experiment.",
+  name: "content_governance",
+  description: "Retun the contents for governance.",
   parameters: [
     {
-      name: "BCR",
-      type: ParameterType.Number,
+      name: "query",
+      type: ParameterType.String,
       description:
-        "The conversion rate of the control group (e.g., 0.1 for 10%)",
+        "Query",
       required: true,
-    },
-    {
-      name: "MDE",
-      type: ParameterType.Number,
-      description: "The relative lift you want to detect (e.g., 0.05 for 5%)",
-      required: true,
-    },
-    {
-      name: "sigLevel",
-      type: ParameterType.Number,
-      description: "The desired statistical significance (e.g., 95 for 95%)",
-      required: true,
-    },
-    {
-      name: "numVariations",
-      type: ParameterType.Number,
-      description: "The total number of variations, including control",
-      required: true,
-    },
-    {
-      name: "dailyVisitors",
-      type: ParameterType.Number,
-      description:
-        "The number of visitors per day participating in the experiment",
-      required: true,
-    },
+    }
   ],
-})(calculateRuntime);
+})(getContents);
 
 if (bearerToken) {
   app.use("/tools/calculateRuntime", (req, res, next) => {
