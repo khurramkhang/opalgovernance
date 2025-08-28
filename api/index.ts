@@ -63,6 +63,8 @@ async function searchArticles(query: string): Promise<Article[]> {
   return articles.filter(article =>
     article.excerpt.toLowerCase().includes(lowerQuery) ||
     article.title.toLowerCase().includes(lowerQuery) ||
+    article.author_name.toLowerCase().includes(lowerQuery) ||
+    article.contentType.toLowerCase().includes(lowerQuery) ||
     article.tags.some(tag => tag.toLowerCase().includes(lowerQuery)) ||
     article.content.toLowerCase().includes(lowerQuery)
   );
