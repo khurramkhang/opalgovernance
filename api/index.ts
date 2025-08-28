@@ -70,15 +70,9 @@ tool({
   ],
 })(getContents);
 
-if (bearerToken) {
-  app.use("/tools/calculateRuntime", (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${bearerToken}`) {
-      return res.status(401).send("Unauthorized");
-    }
+app.use("/tools/getContents", (req, res, next) => {
     next();
   });
-}
 
 /*
 // For local development
