@@ -69,7 +69,7 @@ async function searchArticlesOfType(query: string): Promise<Article[]> {
 
 tool({
   name: "content_governance_search",
-  description: "Retun the contents for governance where title, excerpt, tags or content match the query",
+  description: "Retun the contents for governance where title, excerpt, author, tags or content match the query",
   parameters: [
     {
       name: "query",
