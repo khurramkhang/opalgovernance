@@ -34,31 +34,42 @@ async function getContents(
 
 type Article = {
   title: string;
-  description: string;
-  url: string;
-  urlToImage: string;
-  publishedAt: string;
+  slug: string;
+  excerpt: string;
   content: string;
+  author_name: string;
+  tags: string[];
+  contentType: string;
 };
 
 async function searchArticles(query: string): Promise<Article[]> {
-  const url = "https://www.jsonkeeper.com/b/RWBFU";
+  const url = "https://www.jsonkeeper.com/b/RLROX";
   const response = await axios.get(url);
   const articles: Article[] = response.data.articles || [];
 
   const lowerQuery = query.toLowerCase();
   return articles.filter(article =>
-    Object.values(article).some(
-      value =>
-        typeof value === "string" &&
-        value.toLowerCase().includes(lowerQuery)
-    )
+    article.excerpt.toLowerCase().includes(lowerQuery) ||
+    article.title.toLowerCase().includes(lowerQuery) ||
+    article.tags.some(tag => tag.toLowerCase().includes(lowerQuery)) ||
+    article.content.toLowerCase().includes(lowerQuery)
+  );
+}
+
+async function searchArticlesOfType(query: string): Promise<Article[]> {
+  const url = "https://www.jsonkeeper.com/b/RLROX";
+  const response = await axios.get(url);
+  const articles: Article[] = response.data.articles || [];
+
+  const lowerQuery = query.toLowerCase();
+  return articles.filter(article =>
+    article.contentType.toLowerCase().includes(lowerQuery)
   );
 }
 
 tool({
-  name: "content_governance",
-  description: "Retun the contents for governance.",
+  name: "content_governance_search",
+  description: "Retun the contents for governance where title, excerpt, tags or content match the query",
   parameters: [
     {
       name: "query",
@@ -69,6 +80,20 @@ tool({
     }
   ],
 })(getContents);
+
+tool({
+  name: "content_governance_by_type",
+  description: "Retun the contents for governance where content type match the query",
+  parameters: [
+    {
+      name: "query",
+      type: ParameterType.String,
+      description:
+        "Query",
+      required: true,
+    }
+  ],
+})(searchArticlesOfType);
 
 app.use("/tools/getContents", (req, res, next) => {
     next();
