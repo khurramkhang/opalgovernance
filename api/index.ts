@@ -33,6 +33,14 @@ async function getContents(
   return { articles };
 }
 
+async function getContentsByType(
+  params: SearchParams
+): Promise<{ articles: Article[] | null }> {
+  const { query } = params;
+  const articles = await searchArticlesOfType(query);
+  return { articles };
+}
+
 type Article = {
   title: string;
   slug: string;
@@ -91,7 +99,7 @@ tool({
       required: true,
     }
   ],
-})(searchArticlesOfType);
+})(getContentsByType);
 
 app.use("/tools/content_governance_by_type", (req, res, next) => {
     next();
