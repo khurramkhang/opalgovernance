@@ -27,6 +27,9 @@ app.get("/", (req, res) => {
 type SearchParams = {
   query: string;
 };
+type ContentTypeParams = {
+  type: string;
+};
 
 async function getContents(
   params: SearchParams
@@ -37,10 +40,10 @@ async function getContents(
 }
 
 async function getContentsByType(
-  params: SearchParams
+  params: ContentTypeParams
 ): Promise<{ articles: Article[] | null }> {
-  const { query } = params;
-  const articles = await searchArticlesOfType(query);
+  const { type } = params;
+  const articles = await searchArticlesOfType(type);
   return { articles };
 }
 
@@ -101,10 +104,10 @@ tool({
   description: "Retun the contents for governance where content type or type match the query",
   parameters: [
     {
-      name: "query",
+      name: "type",
       type: ParameterType.String,
       description:
-        "Query",
+        "Content Type",
       required: true,
     }
   ],
