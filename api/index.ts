@@ -6,6 +6,7 @@ import {
 import express from "express";
 import dotenv from "dotenv";
 import axios from "axios";
+import articlesData from "./articles.js";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ const bearerToken = process.env.BEARER_TOKEN;
 
 // Add a root route to provide a status message.
 app.get("/", (req, res) => {
-  res.send("Opal tool server is running. Visit /discovery for tool discovery.");
+  res.send("Opal Governance Tool is running.");
 });
 
 type SearchParams = {
@@ -44,9 +45,7 @@ type Article = {
 
 async function searchArticles(query: string): Promise<Article[]> {
   const url = "https://www.jsonkeeper.com/b/RLROX";
-  const response = await axios.get(url);
-  const articles: Article[] = response.data.articles || [];
-
+  const articles: Article[] = articlesData.articles || [];
   const lowerQuery = query.toLowerCase();
   return articles.filter(article =>
     article.excerpt.toLowerCase().includes(lowerQuery) ||
@@ -57,9 +56,8 @@ async function searchArticles(query: string): Promise<Article[]> {
 }
 
 async function searchArticlesOfType(query: string): Promise<Article[]> {
-  const url = "https://www.jsonkeeper.com/b/RLROX";
-  const response = await axios.get(url);
-  const articles: Article[] = response.data.articles || [];
+  //const url = "https://www.jsonkeeper.com/b/RLROX";
+  const articles: Article[] = articlesData.articles || [];
 
   const lowerQuery = query.toLowerCase();
   return articles.filter(article =>
@@ -95,7 +93,7 @@ tool({
   ],
 })(searchArticlesOfType);
 
-app.use("/tools/getContents", (req, res, next) => {
+app.use("/tools/content_governance_by_type", (req, res, next) => {
     next();
   });
 
